@@ -86,7 +86,7 @@ tspan = [0 5];               % Simulation duration [s]
 
 % Applied voltage [V], with NO feedback control.
 % NOTE: Vm=0 in this motor model still produces back-EMF braking torque.
-voltageFcn = @(t) 0;
+voltageFcn = @(t) 1;
 
 %% 4. Run nonlinear analytical simulation
 rhs = @(t, state) plantFcn(state, voltageFcn(t), pNum);
