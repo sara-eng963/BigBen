@@ -41,8 +41,8 @@ switch parameterMode
         p.g  = 9.81;       % m/s^2
 
         % Viscous damping [N*m*s/rad]
-        p.b0 = 1.00e-4;
-        p.b1 = 2.80e-4;
+        p.b0 = 1.00e-2;
+        p.b1 = 2.80e-2;
 
         % Simplified DC motor
         p.Rm = 7.80;       % ohm

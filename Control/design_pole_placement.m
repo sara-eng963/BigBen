@@ -53,8 +53,8 @@ p2 = -zeta*omega_n - 1i*omega_d;
 
 % Additional non-dominant poles
 % Chosen farther left than the dominant poles
-p3 = -4*zeta*omega_n;
-p4 = -5*zeta*omega_n;
+p3 = -20*zeta*omega_n;
+p4 = -25*zeta*omega_n;
 
 desiredPoles = [p1 p2 p3 p4];
 

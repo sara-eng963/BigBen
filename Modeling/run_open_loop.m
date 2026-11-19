@@ -27,8 +27,8 @@ fprintf('Parameter source: %s\n', parameterMode);
 
 %% 3. Open-loop test settings
 % State order: [arm angle; arm angular velocity; pendulum angle; pendulum angular velocity]
-x0 = [0; 0; pi; 0];  % 5-degree upright disturbance (example)
-tspan = [0 20];               % Simulation duration [s]
+x0 = [0; 0; deg2rad(5); 0];  
+tspan = [0 50];               % Simulation duration [s]
 
 % Applied voltage [V], with NO feedback control.
 % NOTE: Vm=0 in this motor model still produces back-EMF braking torque.
