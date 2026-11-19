@@ -21,7 +21,7 @@
 
 %% 1. Symbols (simulation interface -- keep state order consistent)
 syms theta0 theta1 dtheta0 dtheta1 ddtheta0 ddtheta1 real
-syms I0 J1 m1 L0 l1 g b0 b1 real
+syms J0 J1r J1t J1a m1 L0 l1 g b0 b1 real
 syms tau Vm im Rm Kt Ke real
 
 q   = [theta0; theta1];
@@ -32,20 +32,38 @@ ddq = [ddtheta0; ddtheta1];
 x = [theta0; dtheta0; theta1; dtheta1];
 u = Vm;  % voltage input (not a state)
 
-%% 2. Energy model -- TEAMMATES EDIT HERE
-% Replace T and V when the agreed mechanical derivation changes.
-% Example only: energy from the course tutorial's simplified model.
 
-T_arm = sym(1)/2 * I0 * dtheta0^2;
-T_pend_rot = sym(1)/2 * J1 * dtheta1^2;
+%% 2. Energy Model - Full 3D Furuta Pendulum
+% theta0 = horizontal arm angle
+% theta1 = pendulum angle (0 = upright)
+% l1 = pendulum center-of-mass distance
+%
+% Mechanical parameters:
+% J0  = arm/base inertia about motor axis
+% J1r = pendulum inertia about hinge axis
+% J1t = pendulum transverse inertia
+% J1a = pendulum longitudinal inertia
 
-% Tutorial's APPROXIMATE planar center-of-mass velocity.
-vx = L0*dtheta0 + l1*dtheta1*cos(theta1);
-vy = l1*dtheta1*sin(theta1);
-T_pend_trans = sym(1)/2 * m1 * (vx^2 + vy^2);
+% Arm kinetic energy
+T_arm = sym(1)/2 * J0 * dtheta0^2;
 
-T = simplify(T_arm + T_pend_rot + T_pend_trans);
+% Pendulum translational kinetic energy
+T_pend_trans = sym(1)/2 * m1 * ( ...
+    (L0^2 + l1^2*sin(theta1)^2)*dtheta0^2 ...
+    + 2*L0*l1*cos(theta1)*dtheta0*dtheta1 ...
+    + l1^2*dtheta1^2);
+
+% Pendulum rotational kinetic energy
+T_pend_rot = sym(1)/2 * ( ...
+    (J1t*sin(theta1)^2 + J1a*cos(theta1)^2)*dtheta0^2 ...
+    + J1r*dtheta1^2);
+
+% Total kinetic energy
+T = simplify(T_arm + T_pend_trans + T_pend_rot);
+
+% Potential energy (theta1 = 0 is upright)
 V = m1*g*l1*cos(theta1);
+
 
 %% 3. Joint forces and motor model -- TEAMMATES EDIT HERE
 % Friction: viscous torque opposes motion at both joints.
@@ -85,7 +103,10 @@ accelerations = simplify(M \ (Qvoltage - h));
 xdot = simplify([dtheta0; accelerations(1); dtheta1; accelerations(2)]);
 
 % A single ordered parameter vector provides a stable simulation interface.
-params = [I0; J1; m1; L0; l1; g; b0; b1; Rm; Kt; Ke];
+
+params = [J0; J1r; J1t; J1a; m1; L0; l1; g; ...
+          b0; b1; Rm; Kt; Ke];
+
 plantFcn = matlabFunction(xdot, 'Vars', {x, u, params});
 
 %% 5. Equation viewer -- generated from symbolic results
@@ -135,7 +156,8 @@ if showDashboard
     viewerMath(ax, .46, prettyLatex(motorTorqueEq), 14);
     viewerLabel(ax, .33, 'Voltage-to-torque substitution', 11);
     viewerMath(ax, .25, ['\tau=' prettyLatex(torqueExpr)], 13);
-    viewerLabel(ax, .13, 'States: theta0, dtheta0, theta1, dtheta1', 11);
+    viewerLabel(ax, .20, 'State vector', 11);
+viewerMath(ax, .10, ['x=' prettyLatex(x)], 12);
 end
 
 %% Local visualization helpers (MATLAB requires functions at script end)
@@ -169,14 +191,21 @@ end
 function out = prettyLatex(expr)
     % Convert a symbolic equation to LaTeX, formatting variable names only.
     out = latex(expr);
-    names = {'ddtheta0','ddtheta1','dtheta0','dtheta1', ...
-             'theta0','theta1','I0','J1','m1','L0','l1', ...
-             'b0','b1','Rm','Kt','Ke','Vm','im','tau'};
-    symbols = {'\ddot{\theta}_{0}','\ddot{\theta}_{1}', ...
-               '\dot{\theta}_{0}','\dot{\theta}_{1}', ...
-               '\theta_{0}','\theta_{1}','I_{0}','J_{1}', ...
-               'm_{1}','L_{0}','l_{1}','b_{0}','b_{1}', ...
-               'R_{m}','K_{t}','K_{e}','V_{m}','i_{m}','\tau'};
+   
+names = {'ddtheta0','ddtheta1','dtheta0','dtheta1', ...
+         'theta0','theta1','J0','J1r','J1t','J1a', ...
+         'm1','L0','l1','b0','b1', ...
+         'Rm','Kt','Ke','Vm','im','tau'};
+
+symbols = {'\ddot{\theta}_{0}','\ddot{\theta}_{1}', ...
+           '\dot{\theta}_{0}','\dot{\theta}_{1}', ...
+           '\theta_{0}','\theta_{1}', ...
+           'J_{0}','J_{1r}','J_{1t}','J_{1a}', ...
+           'm_{1}','L_{0}','l_{1}', ...
+           'b_{0}','b_{1}', ...
+           'R_{m}','K_{t}','K_{e}', ...
+           'V_{m}','i_{m}','\tau'};
+
     % Placeholders avoid accidentally replacing text inside LaTeX markup.
     for n = 1:numel(names)
         name = names{n};
