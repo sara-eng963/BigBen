@@ -10,107 +10,24 @@
 %% 1. Generate the numerical plant from the symbolic model
 clear; clc;
 modelFolder = fileparts(mfilename('fullpath'));
+addpath(modelFolder);
 run(fullfile(modelFolder, 'symbolic_lagrangian.m'));
 % This creates plantFcn(x, Vm, params) in the workspace.
 % The symbolic model also opens its equation viewer by default.
 
 
-%% 2. Parameters
-% Reference:
-% Cazzolato & Prime (2011), "On the Dynamics of the
-% Furuta Pendulum", Section 8.
-% DOI: 10.1155/2011/528341
-%
-% Literature parameters are for model testing.
-% They are NOT measurements of our physical prototype.
+%% 2. Load Shared Physical Parameters
+% All numerical values are defined in furuta_parameters.m.
 
-parameterMode = "test";  % "test" | "hardware"
-
-switch parameterMode
-
-    case "test"
-
-        % --- Mechanical parameters ---
-        % Paper: Arm 1 = horizontal arm
-        %        Arm 2 = pendulum
-
-        % Horizontal arm inertia about motor axis
-        % Parallel-axis theorem: J0 = J1 + m_arm*l_arm^2
-        p.J0 = 2.48e-2 + 0.300*(0.150)^2;  % [kg*m^2]
-
-        % Pendulum principal moments of inertia
-        % Paper: J2yy = J2zz = J2
-        % Longitudinal inertia neglected (slender-link assumption)
-        p.J1r = 3.86e-3;     % Hinge-axis inertia [kg*m^2]
-        p.J1t = 3.86e-3;     % Transverse inertia [kg*m^2]
-        p.J1a = 0;          % Longitudinal inertia [kg*m^2]
-
-        p.m1 = 0.075;       % Pendulum mass [kg]
-        p.L0 = 0.278;       % Motor axis to pendulum hinge [m]
-        p.l1 = 0.148;       % Pendulum hinge to COM [m]
-        p.g  = 9.81;        % Gravity [m/s^2]
-
-        % --- Viscous friction ---
-        p.b0 = 1.00e-4;     % Arm damping [N*m*s/rad]
-        p.b1 = 2.80e-4;     % Pendulum damping [N*m*s/rad]
-
-        % --- DC motor parameters ---
-        p.Rm = 7.80;       % Motor resistance [ohm]
-        p.Kt = 0.090;      % Torque constant [N*m/A]
-        p.Ke = 0.090;      % Back-EMF constant [V*s/rad]
-
-        % Paper also specifies motor inductance Lm = 0.005 H.
-        % Our current 4-state model NEGLECTS inductance.
-
-    case "hardware"
-
-        % Replace with actual measured/CAD-derived parameters.
-        p.J0  = NaN;
-        p.J1r = NaN;
-        p.J1t = NaN;
-        p.J1a = NaN;
-        p.m1  = NaN;
-        p.L0  = NaN;
-        p.l1  = NaN;
-        p.g   = 9.81;
-
-        p.b0 = NaN;
-        p.b1 = NaN;
-
-        p.Rm = NaN;
-        p.Kt = NaN;
-        p.Ke = NaN;
-
-    otherwise
-        error('Invalid parameter mode.');
-end
-
-%% Parameter vector
-% MUST match the exact order in symbolic_lagrangian.m
-
-pNum = [p.J0; p.J1r; p.J1t; p.J1a; ...
-        p.m1; p.L0; p.l1; p.g; ...
-        p.b0; p.b1; p.Rm; p.Kt; p.Ke];
-
-%% Parameter validation
-if any(~isfinite(pNum))
-    error('Missing or non-finite physical parameters.');
-end
-
-positiveParams = [p.J0, p.J1r, p.J1t, p.m1, ...
-                  p.L0, p.l1, p.g, p.Rm, p.Kt, p.Ke];
-
-nonnegativeParams = [p.J1a, p.b0, p.b1];
-
-if any(positiveParams <= 0) || any(nonnegativeParams < 0)
-    error('Nonphysical parameter values.');
-end
+[p, pNum, parameterMode] = furuta_parameters(params);
 
 fprintf('Parameter source: %s\n', parameterMode);
 
+
+
 %% 3. Open-loop test settings
 % State order: [arm angle; arm angular velocity; pendulum angle; pendulum angular velocity]
-x0 = [0; 0; pi + deg2rad(5); 0];  % 5-degree upright disturbance (example)
+x0 = [0; 0; pi; 0];  % 5-degree upright disturbance (example)
 tspan = [0 20];               % Simulation duration [s]
 
 % Applied voltage [V], with NO feedback control.
