@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="BigBen">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.000260719497971795 -0.000356940015907137 0.0976767245989014"
+        rpy="0 0 0" />
+      <mass
+        value="0.459277574413663" />
+      <inertia
+        ixx="0.00165618568525104"
+        ixy="1.82368084661533E-05"
+        ixz="-9.27277565613475E-07"
+        iyy="0.00143966985459277"
+        iyz="1.10833170385992E-05"
+        izz="0.000571257519946692" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://BigBen/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.894117647058823 0.894117647058823 0.894117647058823 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://BigBen/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Arm_Link">
+    <inertial>
+      <origin
+        xyz="1.08238645446512E-06 0.000766710874388177 0.072190292932981"
+        rpy="0 0 0" />
+      <mass
+        value="0.244661712874135" />
+      <inertia
+        ixx="0.000323837294512668"
+        ixy="-2.13095419861229E-10"
+        ixz="-1.14052093536268E-08"
+        iyy="0.000337050072511274"
+        iyz="4.04515837786719E-07"
+        izz="0.000108195324444289" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://BigBen/meshes/Arm_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.894117647058823 0.894117647058823 0.894117647058823 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://BigBen/meshes/Arm_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint_Arm"
+    type="revolute">
+    <origin
+      xyz="0 0 0.166"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Arm_Link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pendulum_Link">
+    <inertial>
+      <origin
+        xyz="0.0233697337889704 3.37952244859885E-05 0.0279255943312069"
+        rpy="0 0 0" />
+      <mass
+        value="0.00623894201938813" />
+      <inertia
+        ixx="4.05859038751154E-07"
+        ixy="1.44466598798118E-10"
+        ixz="-5.04481229265661E-07"
+        iyy="5.87818865360942E-06"
+        iyz="6.49246725990351E-15"
+        izz="5.57540989191825E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://BigBen/meshes/Pendulum_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.894117647058823 0.894117647058823 0.894117647058823 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://BigBen/meshes/Pendulum_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint_Pendulum"
+    type="continuous">
+    <origin
+      xyz="0 0.0247 0.093"
+      rpy="1.5708 -1.5685 3.1416" />
+    <parent
+      link="Arm_Link" />
+    <child
+      link="Pendulum_Link" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+</robot>
