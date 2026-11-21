@@ -1,0 +1,17 @@
+# Local run evidence and assistant scratch
+/evidence/
+/graphify-out/
+/AGENTS.md
+/CLAUDE.md
+/.agents/
+/.claude/
+/.codex/
+
+# MATLAB and SolidWorks generated files
+slprj/
+*.slxc
+*.asv
+*.slx.autosave
+*.slx.original
+*.slx.r20[0-9][0-9][ab]
+~$*.SLD*
